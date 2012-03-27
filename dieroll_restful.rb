@@ -51,13 +51,13 @@ def google_vis_script(title, cols, rows)
 %div{ :id => 'chart_div' }"
 end
 
-get '/dieroll/:dicenotation' do |notation|
+get '/dieroll/:dicenotation.json' do |notation|
   content_type :json
   notation.sub!("D","/")
   { :result => Roller.new(notation).roll! }.to_json
 end
 
-get '/dieroll/:dicenotation/report' do |notation|
+get '/dieroll/:dicenotation/report.json' do |notation|
   content_type :json
   notation.sub!("D","/")
   roller = Roller.new(notation)
@@ -65,7 +65,7 @@ get '/dieroll/:dicenotation/report' do |notation|
   roller.report(false).to_json
 end
 
-get '/dieroll/:dicenotation/odds' do |notation|
+get '/dieroll/:dicenotation/odds.json' do |notation|
   content_type :json
   notation.sub!("D","/")
   out = Roller.new(notation).odds.table(:all,
@@ -83,7 +83,7 @@ get '/dieroll/:dicenotation/odds/chart' do |notation|
   haml  google_vis_script(notation, headers, table)
 end
 
-get %r{/dieroll/([0-9dDlh\+-]+)/odds/([\w]+)/?([\d]*)} do
+get %r{/dieroll/([0-9dDlh\+-]+)/odds/([\w]+)/?([\d]*)\.json} do
   content_type :json
 
   notation = params[:captures].shift
