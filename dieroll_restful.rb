@@ -1,7 +1,55 @@
 require 'dieroll'
 require 'json'
-require 'gchart'
 include Dieroll
+
+def google_vis_script(title, cols, rows)
+
+  col_first = cols.shift
+  cols_string = "{id: '#{col_first}', label: '#{col_first}', type: 'string'}"
+  cols.each do |col|
+    cols_string += ",{id: '#{col}', label: '#{col}', type: 'number'}"
+  end
+
+  row_first = rows.shift
+  rows_string = "{c:[{v: " + row_first.join("}, {v:") + "}]}"
+  rows.each do |row|
+    rows_string += ",{c:[{v: " + row.join("}, {v:") + "}]}"
+  end
+
+  script = ":plain
+  <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+  <script type='text/javascript'>
+
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages':['corechart']});
+
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawChart);
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  function drawChart() {
+
+  // Create the data table.
+  var data = new google.visualization.DataTable({
+  cols: [#{cols_string}],
+  rows: [#{rows_string}]
+  });
+
+  // Set chart options
+  var options = {'title':'#{title}',
+  'width':400,
+  'height':300,
+  'isStacked':true};
+
+  // Instantiate and draw our chart, passing in some options.
+  var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+  chart.draw(data, options);
+  }
+  </script>
+%div{ :id => 'chart_div' }"
+end
 
 get '/dieroll/:dicenotation' do |notation|
   content_type :json
@@ -28,40 +76,11 @@ end
 
 get '/dieroll/:dicenotation/odds/chart' do |notation|
   notation.sub!("D","/")
-  table = Roller.new(notation).odds.table(:all,[:equal],true)
+  table = Roller.new(notation).odds.table(:all,[:less_than,:greater_than_or_equal],true)
 
   headers = table.shift
 
-  possibilities = []
-  probabilities = []
-
-  min = 100.00
-  max = 0.00
-
-  table.each do |row|
-    possibilities << row.shift
-    probability = (row.shift*100).round(2)
-    max = probability  if probability > max
-    min = probability  if probability < min
-    probabilities << probability
-  end
-
-  num_possibilties = possibilities.last - possibilities.first
-  chart = Gchart.bar(:size => '200x400',
-                      :title => notation,
-                      :data => probabilities.reverse,
-                      :axis_with_labels => 'x,y',
-                      :axis_labels => [[0,
-                                        max/4,
-                                        max/2,
-                                        (max*3/4).round(2),
-                                        max], possibilities],
-                      :bar_width_and_spacing =>
-                        [200/num_possibilties],
-                      :max_value => max,
-                      :orientation => 'horizontal'
-                      )
-  "<img src=#{chart}>"
+  haml  google_vis_script(notation, headers, table)
 end
 
 get %r{/dieroll/([0-9dDlh\+-]+)/odds/([\w]+)/?([\d]*)} do
