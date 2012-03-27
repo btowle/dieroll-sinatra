@@ -1,13 +1,13 @@
 !!!
 %html
   %head
-    %title My Sinatra Website
+    %title Dieroll
     %link(rel="stylesheet" href="/css/styles.css")
   %body
     #wrapper
       #header
-        %h1 My Sinatra Website
-        %h2 A Simple Site made with Sinatra and HAML
+        %h1 Dieroll
+        %h2 Sinatra + HAML + Dieroll
       #nav
         %ol
           %a(href="/")
@@ -19,9 +19,28 @@
         =yield
 
       #side_bar
-        %h1 Side Bar
+        %h1 Dieroll
         %p
-          This is the side bar of the webpage
+          %a(href="/dieroll/3d6")
+            Roll 3d6 (simple) [json]
+          %br/
+          %a(href="/dieroll/3d6/report")
+            Roll 3d6 (report) [json]
+          %br/
+          %a(href="/dieroll/3d6/odds")
+            3d6 Odds [json]
+          %br/
+          %a(href="/dieroll/3d6/odds/10")
+            3d6 Odds (choose value) [json]
+          %br/
+          %a(href="/dieroll/3d6/odds/eqge")
+            3d6 Odds (choose columns) [json]
+          %br/
+          %a(href="/dieroll/3d6/odds/eqhe/10")
+            3d6 Odds (choose columns and value) [json]
+          %br/
+          %a(href="/dieroll/3d6/odds/chart")
+            3d6 Odds (chart)
 
       #footer
         %p
