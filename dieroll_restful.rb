@@ -1,5 +1,6 @@
 require 'dieroll'
 require 'json'
+require 'gchart'
 include Dieroll
 
 get '/dieroll/:dicenotation' do |notation|
@@ -23,6 +24,44 @@ get '/dieroll/:dicenotation/odds' do |notation|
                                           [:equal],
                                           true)
   { :headers => out.shift, :rows => out }.to_json
+end
+
+get '/dieroll/:dicenotation/odds/chart' do |notation|
+  notation.sub!("D","/")
+  table = Roller.new(notation).odds.table(:all,[:equal],true)
+
+  headers = table.shift
+
+  possibilities = []
+  probabilities = []
+
+  min = 100.00
+  max = 0.00
+
+  table.each do |row|
+    possibilities << row.shift
+    probability = (row.shift*100).round(2)
+    max = probability  if probability > max
+    min = probability  if probability < min
+    probabilities << probability
+  end
+
+  num_possibilties = possibilities.last - possibilities.first
+  chart = Gchart.bar(:size => '200x400',
+                      :title => notation,
+                      :data => probabilities.reverse,
+                      :axis_with_labels => 'x,y',
+                      :axis_labels => [[0,
+                                        max/4,
+                                        max/2,
+                                        (max*3/4).round(2),
+                                        max], possibilities],
+                      :bar_width_and_spacing =>
+                        [200/num_possibilties],
+                      :max_value => max,
+                      :orientation => 'horizontal'
+                      )
+  "<img src=#{chart}>"
 end
 
 get %r{/dieroll/([0-9dDlh\+-]+)/odds/([\w]+)/?([\d]*)} do
