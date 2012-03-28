@@ -4,7 +4,13 @@ get '/dieroll/:dicenotation' do |notation|
   status, headers, body = call env.merge("PATH_INFO" =>
                                           "/dieroll/#{notation}.json")
   roll = JSON.parse(body[0])
-  haml roll["result"].to_s
+  out = "%h1
+  #{roll["result"].to_s}
+  %br/
+%a(href='/dieroll/#{notation}')
+  re-roll"
+
+  haml out
 end
 
 get '/dieroll/:dicenotation/report' do |notation|
@@ -24,6 +30,12 @@ get '/dieroll/:dicenotation/report' do |notation|
     output += "+"  if mod >= 0
     output += mod.to_s + " "
   end
+  output += "
+%br/
+%br/
+%a(href='/dieroll/#{notation}/report')
+  re-roll"
+
   haml output
 end
 
