@@ -12,7 +12,7 @@
         %ol
           %a(href="/")
             %li Home
-          %a(href="about")
+          %a(href="/about")
             %li About
 
       #content
@@ -20,6 +20,24 @@
 
       #side_bar
         %h1 Dieroll
+        %p
+          %a(href="/dieroll/3d6")
+            Roll 3d6 (simple)
+          %br/
+          %a(href="/dieroll/3d6/report")
+            Roll 3d6 (report)
+          %br/
+          %a(href="/dieroll/3d6/odds")
+            3d6 Odds
+          %br/
+          %a(href="/dieroll/3d6/odds/eqge")
+            3d6 Odds (choose columns)
+          %br/
+          %a(href="/dieroll/3d6/odds/eqge/10")
+            3d6 Odds (choose columns and value)
+          %br/
+          %a(href="/dieroll/3d6/odds/chart")
+            3d6 Odds (chart)
         %p
           %a(href="/dieroll/3d6.json")
             Roll 3d6 (simple) [json]
@@ -30,13 +48,10 @@
           %a(href="/dieroll/3d6/odds.json")
             3d6 Odds [json]
           %br/
-          %a(href="/dieroll/3d6/odds/10.json")
-            3d6 Odds (choose value) [json]
-          %br/
           %a(href="/dieroll/3d6/odds/eqge.json")
             3d6 Odds (choose columns) [json]
           %br/
-          %a(href="/dieroll/3d6/odds/eqhe/10.json")
+          %a(href="/dieroll/3d6/odds/eqge/10.json")
             3d6 Odds (choose columns and value) [json]
           %br/
           %a(href="/dieroll/3d6/odds/chart")
