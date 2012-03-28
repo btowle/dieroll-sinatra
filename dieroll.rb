@@ -32,7 +32,7 @@ get '/dieroll/:dicenotation/odds' do |notation|
                                           "/dieroll/#{notation}/odds.json")
   roll = JSON.parse(body[0])
   
-  output = make_table(roll["headers"], roll["rows"])
+  output = make_table(notation, roll["headers"], roll["rows"])
 
   haml output
 end
@@ -62,7 +62,7 @@ get %r{/dieroll/([0-9dDlh\+-]+)/odds/([\w]+)/?([\d]*)} do |notation,
                                           "/dieroll/#{notation}/odds/#{compare}/#{value}.json/")
   roll = JSON.parse(body[0])
 
-  output = make_table(roll["headers"], roll["rows"])
+  output = make_table(notation, roll["headers"], roll["rows"])
 
   haml output
 end
@@ -116,12 +116,42 @@ def google_vis_script(title, cols, rows)
 %div{ :id => 'chart_div' }"
 end
 
-def make_table(headers, rows)
-  br = "\n%br\n"
-  output = headers.join("|") + br
-  rows.each do |row|
-    output += row.join("|") + br
+def make_table(title, cols, rows)
+
+  col_first = cols.shift
+  cols_string = "{id: '#{col_first}', label: '#{col_first}', type: 'string'}"
+  cols.each do |col|
+    cols_string += ",{id: '#{col}', label: '#{col}', type: 'number'}"
   end
 
-  output
+  row_first = rows.shift
+  rows_string = "{c:[{v: " + row_first.join("}, {v:") + "}]}"
+  rows.each do |row|
+    rows_string += ",{c:[{v: " + row.join("}, {v:") + "}]}"
+  end
+
+  script = ":plain
+  <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+  <script type='text/javascript'>
+  
+  google.load('visualization', '1', {packages: ['table']});
+  google.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+  var data = new google.visualization.DataTable({
+  cols: [#{cols_string}],
+  rows: [#{rows_string}]
+  });
+
+  var options = {'title':'#{title}',
+  'width':400,
+  'height':300,
+  'alternatingRowStyle':true
+  };
+
+  var chart = new google.visualization.Table(document.getElementById('chart_div'));
+  chart.draw(data, options);
+  }
+  </script>
+%div{ :id => 'chart_div' }"
 end
